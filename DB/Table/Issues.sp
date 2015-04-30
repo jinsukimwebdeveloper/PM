@@ -1,0 +1,20 @@
+DROP TABLE Issues
+
+CREATE TABLE Issues
+(
+Id int IDENTITY(1,1) PRIMARY KEY,
+Subject nvarchar(255),
+Status int,
+Components int,
+Priority int,
+FixVersion	nvarchar(10),
+Description	nvarchar(1000),
+Reporter int,
+Assignee int,
+Logged	nvarchar(10),
+Estimate	int,
+CompletedTimeStamp dateTime2,
+CreatedTimeStamp datetime2 NOT NULL CONSTRAINT DF_Issues_CreateDate_GETDATE DEFAULT GETDATE(),
+UpdatedTimeStamp datetime2,
+Project int
+)

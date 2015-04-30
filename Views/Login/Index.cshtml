@@ -1,0 +1,122 @@
+﻿@model Jira.Views.Dto.LoginModel
+@{
+    Layout = "";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>로그인</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/bootstrap")
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <style>
+        .form-signin {
+            max-width: 330px;
+            padding: 10px;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+
+        body {
+            background-color: aliceblue;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        $(document).ready(function () {
+            // hide error msg block initially
+            $("#errorMsgBlock").hide();
+            $("#loadingIcon").hide();
+
+            // show loading icon
+            $(document).ajaxSend(function (event, request, settings) {
+                // disable button after click.
+                $('button').prop('disabled', true);
+                $('#loadingIcon').show();
+            });
+
+            // hide loading icon
+            $(document).ajaxComplete(function (event, request, settings) {
+                // enable button after ajax call.
+                $('button').prop('disabled', false);
+                $('#loadingIcon').hide();
+            })
+        });
+
+        // ajax success handler
+        function OnSuccess(response) {
+            if (response.Result == -1 || response.Result == -2) {
+                // display error message
+                $("#errorMsgBlock").show();
+                $("#errorMsg").text(response.Description);
+                if (response.Result == -1)
+                    $('#inputEmail').val('');
+                if (response.Result == -2)
+                    $('#inputPassword').val('');
+            } else {
+                // redirect to issue page
+                window.location.href = "@Url.Action("Index", "Project")";
+            }
+        }
+
+        // ajax failure handler
+        function OnFailure(response) {
+            // display error message
+            $("#errorMsgBlock").show();
+            $("#errorMsg").text("Internal Error!");
+        }
+
+    </script>
+    <div class="container">
+        <br />
+        @using (Ajax.BeginForm("RequestLogin", "Login", new AjaxOptions { OnSuccess = "OnSuccess", OnFailure = "OnFailure" }))
+        {
+            <div class="form-signin">
+                <h2>로그인 해 주세요.</h2>
+                <div id="errorMsgBlock">
+                    <div class="alert alert-danger" role="alert">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span class="sr-only">Error:</span>
+                        <span id="errorMsg"></span>
+                    </div>
+                </div>
+
+                @Html.TextBoxFor(m => m.Email, new
+            {
+                id = "inputEmail",
+                @class = "form-control input-lg",
+                placeholder = "이메일",
+                type = "email",
+                required = "required",
+                autofocus = "autofocus"
+            })
+                @Html.TextBoxFor(m => m.Password, new
+            {
+                id = "inputPassword",
+                @class = "form-control input-lg",
+                placeholder = "비밀번호",
+                type = "password",
+                required = "required"
+            })
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" value="remember-me"> 로그인 유지
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    <i id="loadingIcon" class="fa fa-cog fa-spin"></i>
+                    로그인
+                </button>
+            </div>
+        }
+    </div> <!-- /container -->
+</body>
+</html>

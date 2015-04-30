@@ -1,0 +1,184 @@
+﻿@model IEnumerable<Jira.Views.Dto.SprintTableModel>
+@{
+    ViewBag.Title = "스프린트";
+}
+@{
+    var TotalRows = Jira.Views.Dto.SprintTableModel.TotalRows;
+    var TotalPage = 0;
+}
+@if ((TotalRows % 10) != 0)
+{
+    TotalPage = TotalRows / 10 + 1;
+}
+else
+{
+    TotalPage = TotalRows / 10;
+}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script>
+    var currentPageNumber = 1;
+
+    $(document).ready(function () {
+        // Page Controller
+        if (Number(@TotalPage) != 0) {
+            SetPageController(1, 10);
+        }
+
+        // Register click event handler
+        $(".pagination").on("click", "li", pageNumberClickHandler);
+
+        // Ajax loading icon
+        $(document).ajaxStart(function () {
+            $("#registerLoadingIcon").show();
+            $("#registerIssueBtn").attr("disabled", true);
+        }).ajaxStop(function () {
+            $("#registerLoadingIcon").hide();
+            $("#registerIssueBtn").attr("disabled", false);
+        });
+
+        // DatePicker
+        $("#InputFrom").datepicker();
+        $("#InputTo").datepicker();
+
+        // For 6 month only.
+        var today = new Date();
+        var to = $.datepicker.formatDate('mm/dd/yy', today);
+        var from = $.datepicker.formatDate('mm/dd/yy', new Date().addMonths(-6));
+        $("#InputFrom").val(from);
+        $("#InputTo").val(to);
+
+        // Active 개발티켓 Tab
+        $("#sprintTab").addClass("active");
+
+        // 이슈 등록 팝업을 열때 모든 필드를 초기화.
+        $("#showModalBtn").click(function () {
+            $("#createIssueForm").find('input:text, input:password, input:file, select, textarea').val('');
+            $("#createIssueForm").find('input:radio, input:checkbox').removeAttr('checked').removeAttr('selected');
+        });
+
+        // pull down components for alignment
+        $('.pull-down').each(function () {
+            $(this).css('margin-top', $(this).parent().height() - $(this).height())
+        });
+    });
+
+    // 오늘 현재 부터 6개월 전 데이터를 불러오기위한 Date function
+    Date.prototype.addMonths = function (n) {
+        this.setMonth(this.getMonth() + n);
+        return this;
+    }
+
+    function SetPageController(from, to) {
+        if (to >= Number(@TotalPage)) {
+            to = Number(@TotalPage);
+        }
+        var pageNumber = '<li id="leftPageClick"><a href="#">&laquo;</a></li>';
+        for (var i = from; i <= to; i++) {
+            pageNumber += ('<li><a href="#">' + i + '</a></li>');
+        }
+        $('.pagination').empty().append(pageNumber + '<li id="rightPageClick"><a href="#">&raquo;</a></li>').clone();
+        $('.pagination .active').removeClass('active');
+        $(".pagination :nth-child(2)").addClass("active")
+    }
+
+
+    function pageNumberClickHandler(event) {
+        var pageNumber;
+
+        if ($(this).attr('id') == 'leftPageClick') {
+            var firstNumber = parseInt($(".pagination :nth-child(2)").text());
+            if (firstNumber != 1) {
+                var from = firstNumber - 10;
+                var to = firstNumber - 1;
+                SetPageController(from, to);
+                pageNumber = from;
+            } else {
+                return;
+            }
+        }
+        else if ($(this).attr('id') == 'rightPageClick') {
+            var firstNumber = parseInt($(".pagination :nth-child(2)").text());
+            var from = firstNumber + 10;
+            if (from < Number(@TotalPage)) {
+                var to = from + 9;
+                if (to >= Number(@TotalPage)) {
+                    to = Number(@TotalPage);
+                }
+                SetPageController(from, to);
+                pageNumber = from;
+            } else {
+                return;
+            }
+        } else {
+            pageNumber = parseInt($(this.childNodes).text());
+            $('.pagination .active').removeClass('active');
+            $(this).addClass("active");
+        }
+
+        $.ajax({
+            url: '@Url.Action("GetTicketList", "Home")',
+            data: { pageNumber: pageNumber, pageRows: '10' },
+            type: 'GET',
+            success: function (data) {
+                $('#TableList').empty().append(data).clone();
+                $('#p_' + pageNumber).addClass("active");
+                currentPageNumber = pageNumber;
+            },
+            error: function () {
+                alert("Internal Error");
+            }
+        });
+    }
+
+    function reloadIssueTable() {
+        $.ajax({
+            url: '@Url.Action("GetIssueList", "Home")',
+            data: { pageNumber: currentPageNumber, pageRows: '10' },
+            type: 'GET',
+            success: function (data) {
+                $('#TableList').empty().append(data).clone();
+            },
+            error: function () {
+                alert("Internal Error");
+            }
+        });
+    }
+</script>
+
+
+<div class="row">
+    <div class="col-md-12 pull-down">
+        <h2>스프린트</h2>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form class="form-inline">
+            <div class="form-group">
+                <input class="form-control" id="InputFrom" placeholder="From">
+            </div>
+            <i id="toCalendar" class="fa fa-calendar fa-lg"></i>
+            <div class="form-group">
+                <input class="form-control" id="InputTo" placeholder="To">
+            </div>
+            <i id="fromCalendar" class="fa fa-calendar fa-lg"></i>&nbsp;&nbsp;&nbsp;
+            <button id="searchTableBtn" type="button" class="btn btn-default">검색</button>
+            <!-- Button trigger modal -->
+            <button id="showModalBtn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#register">
+                등록
+            </button>
+        </form>
+    </div>
+</div>
+<br />
+
+<div id="TableList">
+    @Html.Partial("_TableList", Model)
+</div>
+<ul class="pagination"></ul>
+
+@*<div id="ModalPopup">
+        @Html.Partial("_ModalPopup", ViewData["CreateTicketModel"])
+    </div>*@

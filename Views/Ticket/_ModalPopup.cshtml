@@ -1,0 +1,138 @@
+﻿@model Jira.Views.Dto.CreateTicketModel
+
+<!-- 이슈 등록 Modal -->
+<div class="modal fade" id="register" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">
+                    <i class="fa fa-plus fa-lg"></i>&nbsp;&nbsp;신규 티켓 등록
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div id="messageBlock">
+                        <div id="successMsgBlock" class="alert alert-success" role="alert">
+                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                            티켓 등록을 성공적으로 완료 하였습니다.
+                        </div>
+                        <div id="errorMsgBlock" class=" alert alert-danger" role="alert">
+                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                            티켓 등록을 실패 하였습니다.
+                        </div>
+                    </div>
+                    <fieldset id="createIssueForm">
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="control-label col-md-3">제목</label>
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Subject, new { htmlAttributes = new { @class = "form-control" } })
+                                </div>
+                            </div>
+                        </form>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="control-label col-md-3">프로젝트</label>
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(model => model.Project, (IEnumerable<SelectListItem>)Model.ProjectList, "선택하세요", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </form>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="control-label col-md-3">담당자</label>
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(model => model.Owner, (IEnumerable<SelectListItem>)Model.OwnerList, "선택하세요", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </form>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="control-label col-md-3">예상기간</label>
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(model => model.Estimate, (IEnumerable<SelectListItem>)Model.EstimateList, "선택하세요", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </form>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="control-label col-md-3">Component</label>
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(model => model.Component, (IEnumerable<SelectListItem>)Model.ComponentList, "선택하세요", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </form>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="control-label col-md-3">중요도</label>
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(model => model.Priority, (IEnumerable<SelectListItem>)Model.PriorityList, "선택하세요", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </form>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="control-label col-md-3">내용</label>
+                                <div class="col-md-9">
+                                    @Html.TextArea("Description", Model.Description, new { @class = "form-control", rows = 10 })
+                                </div>
+                            </div>
+                        </form>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" id="registerIssueBtn"><i id="registerLoadingIcon" class="fa fa-spinner fa-pulse"></i>&nbsp;등록</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Ajax loading icon
+        $(document).ajaxStart(function () {
+            $("#registerLoadingIcon").show();
+            $("#registerBtn").attr("disabled", true);
+        }).ajaxStop(function () {
+            // do nothing.
+        });
+
+        $("#successMsgBlock").hide();
+        $("#errorMsgBlock").hide();
+        $("#registerLoadingIcon").hide();
+
+        $("#registerIssueBtn").click(function () {
+            var createIssueForm = $("#createIssueForm");
+            //ajax call
+            $.ajax({
+                url: '@Url.Action("CreateIssue", "Ticket")',
+                data: createIssueForm.serialize(),
+                type: 'POST',
+                success: function (data) {
+                    if (data == 1) {
+                        // Show success message
+                        $("#successMsgBlock").show();
+                        hideMessageBoxAfterSecond(2000);
+                    }
+                    else {
+                        // Show error message DB Error
+                        $("#errorMsgBlock").show();
+                    }
+                },
+                error: function () {
+                    // Show error message
+                    $("#errorMsgBlock").show();
+                }
+            });
+        });
+    });
+
+    function hideMessageBoxAfterSecond(second) {
+        window.setTimeout(function () {
+            location.reload();
+        }, second);
+    }
+</script>

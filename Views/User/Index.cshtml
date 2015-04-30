@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Jira.Views.Dto.UserTableModel>
+@{
+    ViewBag.Title = "사용자관리";
+}
+<style>
+    .marginTop10 {
+        margin-top: 10px;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        $("#userTab").addClass("active");
+    });
+</script>
+
+<h2><i class="fa fa-users fa-lg"></i>&nbsp;사용자관리</h2>
+<br/>
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table table-hover">
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><p><i class="fa fa-smile-o fa-3x"></i></p></td>
+                        <td><p>@item.Name</p></td>
+                        <td><p>@item.Email</p></td>
+                        <td><p>@item.Mobile</p></td>
+                        <td><p>Active</p></td>
+                        <td><p><button class="btn btn-default marginTop10">편집</button></p></td>
+                        <td><p><button class="btn btn-default marginTop10">비밀번호 리셋</button></p></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+

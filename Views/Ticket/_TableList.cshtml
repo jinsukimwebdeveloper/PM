@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Jira.Views.Dto.TicketTableModel>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>프로젝트</th>
+            <th>티켓이름</th>
+            <th>상태값</th>
+            <th>중요도</th>
+            <th>Man Day</th>
+            <th>담당자</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <p>@Html.ActionLink("TIC#" + @item.Id.ToString("D4"), "Detail/" + @item.Id)</p>
+                </td>
+                <td><p>@item.Project</p></td>
+                <td><p>@item.Subject</p></td>
+                <td>
+                    <p>
+                        @if (item.Status == "Open")
+                        {
+                            <h4><span class="label label-info">@item.Status</span></h4>
+                        }
+                        else
+                        {
+                            <h4><span class="label label-info">@item.Status</span></h4>
+                        }
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        @item.Priority &nbsp;
+                        @if (item.Priority == "Major")
+                        {
+                            <i class="fa fa-arrow-up fa-lg"></i>
+                        }
+                        else if (item.Priority == "Critical")
+                        {
+                            <i class="fa fa-bolt fa-lg"></i>
+                        }
+                    </p>
+                </td>
+                <td><p>@item.Estimate</p></td>
+                <td><p>@item.Assignee</p></td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,111 @@
+﻿@model Jira.Views.Dto.ProjectDetailModel
+@{
+    ViewBag.Title = "프로젝트";
+}
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script>
+
+</script>
+
+<div class="well">
+    <div class="row container">
+        <h2>프로젝트: @Model.Subject</h2>
+    </div>
+</div>
+
+<hr />
+
+<table class="table table-striped">
+    <tr>
+        <td style="width:20%">설명</td>
+        <td>
+            @Model.Description
+        </td>
+    </tr>
+    <tr>
+        <td>상태</td>
+        <td>
+            @if (Model.Status == "Open")
+            {
+                <h4><span class="label label-info">@Model.Status</span></h4>
+            }
+            else
+            {
+                <h4><span class="label label-info">@Model.Status</span></h4>
+            }
+        </td>
+    </tr>
+    <tr>
+        <td>배포 Version</td>
+        <td>@Model.ReleasedVersion</td>
+    </tr>
+    <tr>
+        <td>잔행중인 스프린트</td>
+        <td>@Model.RecentSprint</td>
+    </tr>
+    <tr>
+        <td>Source Repository</td>
+        <td><i class="fa fa-github-alt fa-lg"></i>&nbsp;@Model.SourceRespository
+    </tr>
+    <tr>
+        <td>담당자</td>
+        <td>
+            <table class="table table-condensed">
+                <tr>
+                    <td style="width:20%">PM</td>
+                    <td>김진수</td>
+                    <td>jinsukim@gmail.com</td>
+                    <td>010-4565-1139</td>
+                </tr>
+                <tr>
+                    <td>Lead Developer</td>
+                    <td>이태헌</td>
+                    <td>jinsukim@gmail.com</td>
+                    <td>010-4565-1139</td>
+                </tr>
+            </table>
+            <button class="btn btn-default">담당자 추가</button>
+        </td>
+    </tr>
+    <tr>
+        <td>관련 티켓</td>
+        <td>
+            <table class="table table-condensed">
+                <tr>
+                    <td style="width:20%">
+                        @Html.ActionLink("#TIC0001", "Detail", "Ticket", new { id = 1 }, null)
+                    </td>
+                    <td>
+                        Detail 화면 작성하기
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:20%">
+                        @Html.ActionLink("#TIC0002", "Detail", "Ticket", new { id = 2 }, null)
+                    </td>
+                    <td>
+                        Detail 화면에서 Navbar 운영이슈가 Active 되도록 수정
+                    </td>
+                </tr>
+            </table>
+            <button class="btn btn-default">티켓 추가</button>
+        </td>
+    </tr>
+</table>
+<div class="container row">
+    <button class="btn btn-default">편집</button>
+    <button class="btn btn-default">삭제</button>
+</div>
+
+
+<div id="ListTable">
+    @*@Html.Partial("_TableList", Model)*@
+</div>
+<ul class="pagination"></ul>
+
+<div id="ModalPopup">
+    @*@Html.Partial("_ModalPopup", ViewData["CreateTicketModel"])*@
+</div>
+
